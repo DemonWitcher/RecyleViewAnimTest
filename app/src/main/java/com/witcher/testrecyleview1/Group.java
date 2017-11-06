@@ -1,15 +1,12 @@
 package com.witcher.testrecyleview1;
 
-import com.chad.library.adapter.base.entity.AbstractExpandableItem;
-import com.chad.library.adapter.base.entity.MultiItemEntity;
-
 import java.util.ArrayList;
 
 /**
  * Created by witcher on 2017/9/20.
  */
 
-public class Group extends AbstractExpandableItem<Child> implements MultiItemEntity {
+public class Group {
     String name;
     ArrayList<Child> children;
     boolean isZhankai;
@@ -36,15 +33,5 @@ public class Group extends AbstractExpandableItem<Child> implements MultiItemEnt
 
     public void setChildren(ArrayList<Child> children) {
         this.children = children;
-    }
-
-    @Override
-    public int getLevel() {
-        return 0;
-    }
-
-    @Override
-    public int getItemType() {
-        return 0;
     }
 }
