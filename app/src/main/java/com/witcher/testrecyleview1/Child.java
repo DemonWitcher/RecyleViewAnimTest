@@ -6,6 +6,8 @@ package com.witcher.testrecyleview1;
 
 public class Child {
     String name;
+    boolean isFirstBind = true;
+    Group group;
 
     public Child(String name) {
         this.name = name;

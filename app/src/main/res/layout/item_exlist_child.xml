@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rl_root"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_root"
     android:layout_width="0dp"
     android:layout_height="60dp"
-    android:background="#000000"
-    >
+    android:background="@drawable/all_corners_window_bg2">
 
-    <RelativeLayout
-        android:layout_margin="5dp"
-        android:id="@+id/rl_content"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/all_corners_window_bg2"
-        android:elevation="5dp">
 
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="#000000"
-            android:textSize="15sp" />
-    </RelativeLayout>
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="#000000"
+        android:textSize="15sp" />
 
-</RelativeLayout>
+</FrameLayout>

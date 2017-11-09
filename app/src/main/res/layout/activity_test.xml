@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
     <LinearLayout
         android:id="@+id/ll1"
         android:orientation="horizontal"
@@ -165,7 +164,6 @@
         android:layout_width="1000dp"
         android:layout_height="60dp">
         <RelativeLayout
-            android:id="@+id/rl1"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"
@@ -190,7 +188,6 @@
 
         </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/rl2"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"
@@ -215,7 +212,6 @@
 
         </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/rl3"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"
@@ -240,7 +236,6 @@
 
         </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/rl4"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"
@@ -265,7 +260,6 @@
 
         </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/rl5"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"
@@ -290,7 +284,6 @@
 
         </RelativeLayout>
         <RelativeLayout
-            android:id="@+id/rl6"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:background="#ffffff"

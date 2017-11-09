@@ -1,5 +1,6 @@
 package com.witcher.testrecyleview1;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -15,25 +16,42 @@ import java.util.ArrayList;
  * Created by witcher on 2017/9/22.
  */
 
-public class MyAdapter extends RecyclerView.Adapter{
+public class MyAdapter extends RecyclerView.Adapter {
 
-    public static final int TYPE_GROUP = 1;
-    public static final int TYPE_CHILD = 2;
-    public static final int ANIM_TIME = 8000;
+    private static final int TYPE_GROUP = 1;
+    private static final int TYPE_CHILD = 2;
+    private static final int ANIM_TIME = 300;
 
-    private ArrayList<Group> groups;
-    private ArrayList<Object> data = new ArrayList<>();
+    private ArrayList<Object> mData = new ArrayList<>();
 
-    private Context context;
+    private Context mContext;
+    private RecyclerView mRecyclerView;
     private final LayoutInflater mLayoutInflater;
 
+    private int mOpenAnimLastScrollByX;
+    private final ArrayList<View> mCurrentCloseChildList = new ArrayList<>();
+    private ValueAnimator mCloseValueAnimator;
+    private ValueAnimator mOpenValueAnimator;
+    private Group mCurrentCloseGroup;
 
-    public MyAdapter(Context context, ArrayList<Group> groups) {
+
+    public MyAdapter(Context context, ArrayList<Group> groups, RecyclerView rv) {
         mLayoutInflater = LayoutInflater.from(context);
-        this.context = context;
-        this.groups = groups;
-        data.addAll(groups);
+        this.mContext = context;
+        this.mRecyclerView = rv;
+        mData.addAll(groups);
+        initValueAnimator();
     }
+
+    private void initValueAnimator() {
+        mCloseValueAnimator = new ValueAnimator();
+        mOpenValueAnimator = new ValueAnimator();
+        mCloseValueAnimator.setDuration(ANIM_TIME);
+        mOpenValueAnimator.setDuration(ANIM_TIME);
+        mOpenValueAnimator.setFloatValues(0, 1f);
+        mCloseValueAnimator.setFloatValues(0, 1f);
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
@@ -48,18 +66,19 @@ public class MyAdapter extends RecyclerView.Adapter{
         }
         return null;
     }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof GroupViewHolder) {
-            if (data.get(position) instanceof Group) {
+            if (mData.get(position) instanceof Group) {
                 GroupViewHolder viewHolder = (GroupViewHolder) holder;
-                Group bean = (Group) data.get(position);
+                Group bean = (Group) mData.get(position);
                 bindGroupItem(viewHolder, bean, position);
             }
         } else if (holder instanceof ChildViewHolder) {
-            if (data.get(position) instanceof Child) {
+            if (mData.get(position) instanceof Child) {
                 ChildViewHolder viewHolder = (ChildViewHolder) holder;
-                Child bean = (Child) data.get(position);
+                Child bean = (Child) mData.get(position);
                 bindChildItem(viewHolder, bean, position);
             }
         }
@@ -70,106 +89,159 @@ public class MyAdapter extends RecyclerView.Adapter{
         viewHolder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(bean.isZhankai){
-                    data.removeAll(bean.children);
-                    MyAdapter.this.notifyItemRangeRemoved(position+1,bean.children.size());
-                    MyAdapter.this.notifyItemRangeChanged(position+1,bean.children.size());
-//                    MyAdapter.this.notifyDataSetChanged();
-                    animateClose(viewHolder,position);
-                }else{
-                    data.addAll(position+1,bean.children);
-                    MyAdapter.this.notifyItemRangeInserted(position+1,bean.children.size());
-                    MyAdapter.this.notifyItemRangeChanged(position+1,bean.children.size());
-                    MyAdapter.this.notifyDataSetChanged();
-                    animateOpen(viewHolder, bean,position);
+                if (bean.isZhankai) {
+                    for (Child child : bean.children) {
+                        child.isFirstBind = true;
+                    }
+                    animateClose(viewHolder, bean, position);
+                } else {
+                    mData.addAll(position + 1, bean.children);
+                    MyAdapter.this.notifyItemRangeInserted(position + 1,bean.children.size());
+                    MyAdapter.this.notifyItemRangeChanged(position + 1, bean.children.size());
+                    mRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            animateOpen(viewHolder, bean);
+                        }
+                    });
                 }
                 bean.isZhankai = !bean.isZhankai;
             }
         });
     }
 
-
-    private void animateOpen(GroupViewHolder viewHolder, final Group bean, final int position){
-        //1.点击item位置把父视图位移到屏幕左侧正好
-        //2.子视图动态提升宽度
-        //3.子视图要动态改变X轴缩放
-        //4.子视图要往左右两边扩散
-        final View item = viewHolder.itemView;
-        final ViewGroup vp = (ViewGroup) item.getParent();
-        vp.post(new Runnable() {
+    //第一次bind都是0 后面都是60
+    private void animateOpen(final GroupViewHolder viewHolder, final Group bean) {
+        mOpenAnimLastScrollByX = 0;
+        final ArrayList<View> childList = new ArrayList<>();
+        int start = mRecyclerView.indexOfChild(viewHolder.itemView) + 1;
+        int end = start + bean.children.size();
+        for (int i = start; i < end; ++i) {
+            if (mRecyclerView.getChildAt(i) != null) {
+                childList.add(mRecyclerView.getChildAt(i));
+            }
+        }
+        final int childSize = childList.size();
+        final int marginScreenLeft = (int) viewHolder.itemView.getX();
+        mOpenValueAnimator.removeAllUpdateListeners();
+        mOpenValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void run() {
-               final ArrayList<View> childs = new ArrayList<>();
-                int size = bean.children.size();
-                for(int i=0;i<size;++i){
-                    View child = vp.getChildAt(position + i+1);
-                    if(child == null){
-                        continue;
-                    }
-                    childs.add(child);
-                    child.setScaleX(0f);
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Float value = (Float) animation.getAnimatedValue();
+                for (int i = 0; i < childSize; ++i) {
+                    View child = childList.get(i);
                     RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-                    lp.width = 0;
+                    lp.width = (int) (value * 120);
                 }
-                vp.requestLayout();
-                ValueAnimator valueAnimator = new ValueAnimator();
-                valueAnimator.setDuration(ANIM_TIME);
-                valueAnimator.setIntValues(0,120);
-                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        Integer value = (Integer) valueAnimator.getAnimatedValue();
-                        for(View child : childs){
-                            if(child == null){
-                                continue;
-                            }
-                            float scaleValue = value/120f;
-                            L.i("scaleValue:"+scaleValue);
-                            child.setScaleX(scaleValue);
-                            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-                            lp.width = value;
-                        }
-                        vp.requestLayout();
-                    }
-                });
-                valueAnimator.start();
+                int newBy = (int) (value * marginScreenLeft);
+                int by = newBy - mOpenAnimLastScrollByX;
+                mRecyclerView.scrollBy(by, 0);
+                mRecyclerView.requestLayout();
+                mOpenAnimLastScrollByX = newBy;
             }
         });
+        mOpenValueAnimator.start();
     }
 
-    private void animateClose(GroupViewHolder viewHolder,int position){
+    //动画过程中滑进来的item也立刻跟着这个一起变
+    private void animateClose(GroupViewHolder viewHolder, final Group bean, final int position) {
+        mCurrentCloseGroup = bean;
+        mCurrentCloseChildList.clear();
+        int start = mRecyclerView.indexOfChild(viewHolder.itemView) + 1;
+        int end = start + bean.children.size();
+        for (int i = start; i < end; ++i) {
+            if (mRecyclerView.getChildAt(i) != null) {
+                mCurrentCloseChildList.add(mRecyclerView.getChildAt(i));
+            }
+        }
 
+        mCloseValueAnimator.removeAllUpdateListeners();
+        mCloseValueAnimator.removeAllListeners();
+        mCloseValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Float value = (Float) animation.getAnimatedValue();
+                int childSize = mCurrentCloseChildList.size();
+                for (int i = 0; i < childSize; ++i) {
+                    View child = mCurrentCloseChildList.get(i);
+                    RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
+                    lp.width = 120 - (int) (value * 120);
+                }
+                mRecyclerView.requestLayout();
+            }
+        });
+        mCloseValueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mData.removeAll(bean.children);
+                MyAdapter.this.notifyItemRangeRemoved(position+1,bean.children.size());
+                MyAdapter.this.notifyItemRangeChanged(position + 1, bean.children.size());
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        mCloseValueAnimator.start();
     }
 
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        if (holder instanceof ChildViewHolder) {
+            if (mCloseValueAnimator.isRunning()) {
+                if (((ChildViewHolder) holder).group == mCurrentCloseGroup) {
+                    mCurrentCloseChildList.add(holder.itemView);
+                }
+            }
+        }
+    }
 
-
-
-
-
-    private void bindChildItem(ChildViewHolder viewHolder,final Child bean, int position) {
+    private void bindChildItem(ChildViewHolder viewHolder, final Child bean, int position) {
+        if (bean.isFirstBind) {
+            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
+            lp.width = 0;
+            bean.isFirstBind = false;
+        } else {
+            RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
+            lp.width = 120;
+        }
+        mRecyclerView.requestLayout();
+        viewHolder.group = bean.group;
         viewHolder.tvName.setText(bean.getName());
         viewHolder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,bean.getName(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, bean.getName(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return mData.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (data.get(position) instanceof Group) {
+        if (mData.get(position) instanceof Group) {
             return TYPE_GROUP;
-        } else if (data.get(position) instanceof Child) {
+        } else if (mData.get(position) instanceof Child) {
             return TYPE_CHILD;
         }
         return super.getItemViewType(position);
     }
+
     private static class GroupViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;
@@ -181,15 +253,17 @@ public class MyAdapter extends RecyclerView.Adapter{
             root = itemView.findViewById(R.id.rl_root);
         }
     }
+
     private static class ChildViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;
         View root;
+        Group group;
 
         ChildViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_name);
-            root = itemView.findViewById(R.id.rl_root);
+            root = itemView.findViewById(R.id.fl_root);
         }
     }
 }
