@@ -21,9 +21,12 @@ public class MyAdapter extends RecyclerView.Adapter {
 
     private static final int TYPE_GROUP = 1;
     private static final int TYPE_CHILD = 2;
-    private static final int ANIM_TIME = 300;
+
+    private static final int ANIM_TIME = 6000;
+    private static final boolean IS_NOLY_ONE_OPEN = false;
 
     private ArrayList<Object> mData = new ArrayList<>();
+    private ArrayList<Group> mGroupList;
 
     private Context mContext;
     private RecyclerView mRecyclerView;
@@ -39,6 +42,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     public MyAdapter(Context context, ArrayList<Group> groups, RecyclerView rv) {
         mLayoutInflater = LayoutInflater.from(context);
         this.mContext = context;
+        this.mGroupList = groups;
         this.mRecyclerView = rv;
         mData.addAll(groups);
         initValueAnimator();
@@ -111,8 +115,30 @@ public class MyAdapter extends RecyclerView.Adapter {
         });
     }
 
-    //第一次bind都是0 后面都是60
+    //第一次bind都是0 后面都是60  如果点的是屏幕上没显示完的最后一个..先滚动到屏幕内 然后再做这个函数
+    //
     private void animateOpen(final GroupViewHolder viewHolder, final Group bean) {
+        //屏幕宽度 - X < view宽度
+        int outScreenRight = (int) (mRecyclerView.getWidth() - viewHolder.itemView.getX());
+        if(outScreenRight<120){
+            //滚动到屏幕内再做后续动作
+           int firstScroll = 120 - outScreenRight + 1;
+           mRecyclerView.scrollBy(firstScroll,0);
+           animateOpen(viewHolder,bean);
+           return;
+        }
+        if(IS_NOLY_ONE_OPEN){
+            int groupSize = mGroupList.size();
+            for(int i= 0; i<groupSize;++i){
+                Group group = mGroupList.get(i);
+                if(group!=bean&&group.isZhankai){
+                    mData.removeAll(group.children);
+                    MyAdapter.this.notifyItemRangeRemoved(i + 1,group.children.size());
+                    MyAdapter.this.notifyItemRangeChanged(i + 1, group.children.size());
+                    group.isZhankai = false;
+                }
+            }
+        }
         mOpenAnimLastScrollByX = 0;
         final ArrayList<View> childList = new ArrayList<>();
         int start = mRecyclerView.indexOfChild(viewHolder.itemView) + 1;
@@ -124,7 +150,9 @@ public class MyAdapter extends RecyclerView.Adapter {
         }
         final int childSize = childList.size();
         final int marginScreenLeft = (int) viewHolder.itemView.getX();
+        //这个LEFT的数据控制一下
         mOpenValueAnimator.removeAllUpdateListeners();
+        mOpenValueAnimator.removeAllListeners();
         mOpenValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -142,6 +170,12 @@ public class MyAdapter extends RecyclerView.Adapter {
             }
         });
         mOpenValueAnimator.start();
+//        if(bean.name.equals("8")){
+//            Group group = (Group)mData.get(4);
+//            mData.removeAll(group.children);
+//            MyAdapter.this.notifyItemRangeRemoved(5+1,group.children.size());
+//            MyAdapter.this.notifyItemRangeChanged(5 + 1, group.children.size());
+//        }
     }
 
     //动画过程中滑进来的item也立刻跟着这个一起变
