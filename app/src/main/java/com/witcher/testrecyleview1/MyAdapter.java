@@ -22,7 +22,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     private static final int TYPE_GROUP = 1;
     private static final int TYPE_CHILD = 2;
 
-    private static final int ANIM_TIME = 6000;
+    private static final int ANIM_TIME = 300;
     private static final boolean IS_NOLY_ONE_OPEN = false;
 
     private ArrayList<Object> mData = new ArrayList<>();
