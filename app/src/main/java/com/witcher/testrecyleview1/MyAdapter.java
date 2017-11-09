@@ -126,8 +126,6 @@ public class MyAdapter extends RecyclerView.Adapter {
             //滚动到屏幕内再做后续动作
            int firstScroll = childViewWidth - outScreenRight + 1;
            mRecyclerView.scrollBy(firstScroll,0);
-           animateOpen(viewHolder,bean);
-           return;
         }
         if(IS_NOLY_ONE_OPEN){
             int groupSize = mGroupList.size();
