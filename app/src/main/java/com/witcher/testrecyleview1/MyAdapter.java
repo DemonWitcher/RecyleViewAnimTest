@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Created by witcher on 2017/9/22.
+ *
  */
 
 public class MyAdapter extends RecyclerView.Adapter {
