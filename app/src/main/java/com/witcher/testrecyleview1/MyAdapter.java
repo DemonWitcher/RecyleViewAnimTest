@@ -37,6 +37,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     private ValueAnimator mCloseValueAnimator;
     private ValueAnimator mOpenValueAnimator;
     private Group mCurrentCloseGroup;
+    private int childViewWidth;
 
 
     public MyAdapter(Context context, ArrayList<Group> groups, RecyclerView rv) {
@@ -45,6 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter {
         this.mGroupList = groups;
         this.mRecyclerView = rv;
         mData.addAll(groups);
+        childViewWidth= ScreenUtil.dpToPx(context,60);
         initValueAnimator();
     }
 
@@ -120,9 +122,9 @@ public class MyAdapter extends RecyclerView.Adapter {
     private void animateOpen(final GroupViewHolder viewHolder, final Group bean) {
         //屏幕宽度 - X < view宽度
         int outScreenRight = (int) (mRecyclerView.getWidth() - viewHolder.itemView.getX());
-        if(outScreenRight<120){
+        if(outScreenRight<childViewWidth){
             //滚动到屏幕内再做后续动作
-           int firstScroll = 120 - outScreenRight + 1;
+           int firstScroll = childViewWidth - outScreenRight + 1;
            mRecyclerView.scrollBy(firstScroll,0);
            animateOpen(viewHolder,bean);
            return;
@@ -160,7 +162,7 @@ public class MyAdapter extends RecyclerView.Adapter {
                 for (int i = 0; i < childSize; ++i) {
                     View child = childList.get(i);
                     RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-                    lp.width = (int) (value * 120);
+                    lp.width = (int) (value * childViewWidth);
                 }
                 int newBy = (int) (value * marginScreenLeft);
                 int by = newBy - mOpenAnimLastScrollByX;
@@ -170,12 +172,6 @@ public class MyAdapter extends RecyclerView.Adapter {
             }
         });
         mOpenValueAnimator.start();
-//        if(bean.name.equals("8")){
-//            Group group = (Group)mData.get(4);
-//            mData.removeAll(group.children);
-//            MyAdapter.this.notifyItemRangeRemoved(5+1,group.children.size());
-//            MyAdapter.this.notifyItemRangeChanged(5 + 1, group.children.size());
-//        }
     }
 
     //动画过程中滑进来的item也立刻跟着这个一起变
@@ -200,7 +196,7 @@ public class MyAdapter extends RecyclerView.Adapter {
                 for (int i = 0; i < childSize; ++i) {
                     View child = mCurrentCloseChildList.get(i);
                     RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
-                    lp.width = 120 - (int) (value * 120);
+                    lp.width = childViewWidth - (int) (value * childViewWidth);
                 }
                 mRecyclerView.requestLayout();
             }
@@ -243,13 +239,14 @@ public class MyAdapter extends RecyclerView.Adapter {
     }
 
     private void bindChildItem(ChildViewHolder viewHolder, final Child bean, int position) {
+        L.i("viewWidth:"+viewHolder.itemView.getMeasuredWidth());
         if (bean.isFirstBind) {
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
             lp.width = 0;
             bean.isFirstBind = false;
         } else {
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
-            lp.width = 120;
+            lp.width = childViewWidth;
         }
         mRecyclerView.requestLayout();
         viewHolder.group = bean.group;
