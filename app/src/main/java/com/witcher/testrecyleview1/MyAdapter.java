@@ -90,7 +90,7 @@ public class MyAdapter extends RecyclerView.Adapter {
             }
         }
     }
-
+//t
     private void bindGroupItem(final GroupViewHolder viewHolder, final Group bean, final int position) {
         viewHolder.tvName.setText(bean.getName());
         viewHolder.root.setOnClickListener(new View.OnClickListener() {
