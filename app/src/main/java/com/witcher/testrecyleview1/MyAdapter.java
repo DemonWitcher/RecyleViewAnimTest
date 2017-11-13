@@ -23,7 +23,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     private static final int TYPE_CHILD = 2;
 
     private static final int ANIM_TIME = 300;
-    private static final boolean IS_NOLY_ONE_OPEN = false;
+    public static boolean IS_NOLY_ONE_OPEN = false;
 
     private ArrayList<Object> mData = new ArrayList<>();
     private ArrayList<Group> mGroupList;
@@ -100,11 +100,12 @@ public class MyAdapter extends RecyclerView.Adapter {
                     for (Child child : bean.children) {
                         child.isFirstBind = true;
                     }
-                    animateClose(viewHolder, bean, position);
+                    animateClose(viewHolder, bean, viewHolder.getAdapterPosition());
                 } else {
-                    mData.addAll(position + 1, bean.children);
-                    MyAdapter.this.notifyItemRangeInserted(position + 1,bean.children.size());
-                    MyAdapter.this.notifyItemRangeChanged(position + 1, bean.children.size());
+                    int nextPosition = viewHolder.getAdapterPosition()  + 1;
+                    mData.addAll(nextPosition, bean.children);
+                    MyAdapter.this.notifyItemRangeInserted(nextPosition,bean.children.size());
+                    MyAdapter.this.notifyItemRangeChanged(nextPosition, bean.children.size());
                     mRecyclerView.post(new Runnable() {
                         @Override
                         public void run() {
@@ -118,7 +119,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     }
 
     //第一次bind都是0 后面都是60  如果点的是屏幕上没显示完的最后一个..先滚动到屏幕内 然后再做这个函数
-    //
+    //如果在屏幕内 一边关一边开 不在屏幕内 remove了开
     private void animateOpen(final GroupViewHolder viewHolder, final Group bean) {
         //屏幕宽度 - X < view宽度
         int outScreenRight = (int) (mRecyclerView.getWidth() - viewHolder.itemView.getX());

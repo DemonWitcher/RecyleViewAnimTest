@@ -83,6 +83,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void action2(View view){
         listview.scrollBy(480,0);
     }
+    public void action3(View view){
+        MyAdapter.IS_NOLY_ONE_OPEN = !MyAdapter.IS_NOLY_ONE_OPEN;
+    }
 
 
 

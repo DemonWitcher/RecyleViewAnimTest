@@ -170,6 +170,12 @@
         android:text="scrollTo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    <Button
+        android:onClick="action3"
+        android:id="@+id/bt3"
+        android:text="is_only_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <LinearLayout
         android:id="@+id/ll1"
         android:orientation="horizontal"
