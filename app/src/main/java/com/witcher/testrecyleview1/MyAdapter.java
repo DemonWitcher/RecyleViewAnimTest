@@ -73,7 +73,6 @@ public class MyAdapter extends RecyclerView.Adapter {
         }
         return null;
     }
-//bb
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof GroupViewHolder) {
@@ -90,7 +89,6 @@ public class MyAdapter extends RecyclerView.Adapter {
             }
         }
     }
-//t
     private void bindGroupItem(final GroupViewHolder viewHolder, final Group bean, final int position) {
         viewHolder.tvName.setText(bean.getName());
         viewHolder.root.setOnClickListener(new View.OnClickListener() {
