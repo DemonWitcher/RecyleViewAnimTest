@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TestRecyleView1.iml" filepath="$PROJECT_DIR$/TestRecyleView1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RecyleViewAnimTest.iml" filepath="$PROJECT_DIR$/.idea/modules/RecyleViewAnimTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/RecyleViewAnimTest.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/RecyleViewAnimTest.app.iml" />
     </modules>
   </component>
 </project>
