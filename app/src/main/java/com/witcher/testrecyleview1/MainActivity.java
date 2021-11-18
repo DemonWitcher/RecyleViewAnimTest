@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
 
     RecyclerView listview;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         defaultItemAnimator.setMoveDuration(0);
         defaultItemAnimator.setRemoveDuration(0);
         listview.setItemAnimator(defaultItemAnimator);
-        adapter = new MyAdapter(this,dataList,listview);
+        adapter = new MyAdapter(this, dataList, listview);
 
         listview.setAdapter(adapter);
 
@@ -65,10 +65,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initDataList() {
         for (int i = 0; i < 26; ++i) {
             Group group = new Group();
-            group.setName(""+i);
+            group.setName("" + i);
             ArrayList<Child> children = new ArrayList<>();
             for (int j = 0; j < 6; ++j) {
-                Child child = new Child(""+j);
+                Child child = new Child("" + j);
                 child.group = group;
                 children.add(child);
             }
@@ -78,16 +78,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    public void action1(View view){
-        L.i("childCount:"+listview.getChildCount());
-    }
-    public void action2(View view){
-        listview.scrollBy(480,0);
-    }
-    public void action3(View view){
-        MyAdapter.IS_NOLY_ONE_OPEN = !MyAdapter.IS_NOLY_ONE_OPEN;
+    public void action1(View view) {
+        L.i("childCount:" + listview.getChildCount());
     }
 
+    public void action2(View view) {
+        listview.scrollBy(480, 0);
+    }
+
+    public void action3(View view) {
+        MyAdapter.IS_ONLY_ONE_OPEN = !MyAdapter.IS_ONLY_ONE_OPEN;
+    }
 
 
 //------------------------------------------------------------------------------------------------------------------------

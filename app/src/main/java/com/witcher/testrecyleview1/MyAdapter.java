@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by witcher on 2017/9/22.
- *
  */
 
 public class MyAdapter extends RecyclerView.Adapter {
@@ -24,7 +23,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     private static final int TYPE_CHILD = 2;
 
     private static final int ANIM_TIME = 300;
-    public static boolean IS_NOLY_ONE_OPEN = false;
+    public static boolean IS_ONLY_ONE_OPEN = false;
 
     private ArrayList<Object> mData = new ArrayList<>();
     private ArrayList<Group> mGroupList;
@@ -47,7 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter {
         this.mGroupList = groups;
         this.mRecyclerView = rv;
         mData.addAll(groups);
-        childViewWidth= ScreenUtil.dpToPx(context,60);
+        childViewWidth = ScreenUtil.dpToPx(context, 60);
         initValueAnimator();
     }
 
@@ -74,6 +73,7 @@ public class MyAdapter extends RecyclerView.Adapter {
         }
         return null;
     }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof GroupViewHolder) {
@@ -90,6 +90,7 @@ public class MyAdapter extends RecyclerView.Adapter {
             }
         }
     }
+
     private void bindGroupItem(final GroupViewHolder viewHolder, final Group bean, final int position) {
         viewHolder.tvName.setText(bean.getName());
         viewHolder.root.setOnClickListener(new View.OnClickListener() {
@@ -101,9 +102,9 @@ public class MyAdapter extends RecyclerView.Adapter {
                     }
                     animateClose(viewHolder, bean, viewHolder.getAdapterPosition());
                 } else {
-                    int nextPosition = viewHolder.getAdapterPosition()  + 1;
+                    int nextPosition = viewHolder.getAdapterPosition() + 1;
                     mData.addAll(nextPosition, bean.children);
-                    MyAdapter.this.notifyItemRangeInserted(nextPosition,bean.children.size());
+                    MyAdapter.this.notifyItemRangeInserted(nextPosition, bean.children.size());
                     MyAdapter.this.notifyItemRangeChanged(nextPosition, bean.children.size());
                     mRecyclerView.post(new Runnable() {
                         @Override
@@ -122,18 +123,18 @@ public class MyAdapter extends RecyclerView.Adapter {
     private void animateOpen(final GroupViewHolder viewHolder, final Group bean) {
         //屏幕宽度 - X < view宽度
         int outScreenRight = (int) (mRecyclerView.getWidth() - viewHolder.itemView.getX());
-        if(outScreenRight<childViewWidth){
+        if (outScreenRight < childViewWidth) {
             //滚动到屏幕内再做后续动作
-           int firstScroll = childViewWidth - outScreenRight + 1;
-           mRecyclerView.scrollBy(firstScroll,0);
+            int firstScroll = childViewWidth - outScreenRight + 1;
+            mRecyclerView.scrollBy(firstScroll, 0);
         }
-        if(IS_NOLY_ONE_OPEN){
+        if (IS_ONLY_ONE_OPEN) {
             int groupSize = mGroupList.size();
-            for(int i= 0; i<groupSize;++i){
+            for (int i = 0; i < groupSize; ++i) {
                 Group group = mGroupList.get(i);
-                if(group!=bean&&group.isZhankai){
+                if (group != bean && group.isZhankai) {
                     mData.removeAll(group.children);
-                    MyAdapter.this.notifyItemRangeRemoved(i + 1,group.children.size());
+                    MyAdapter.this.notifyItemRangeRemoved(i + 1, group.children.size());
                     MyAdapter.this.notifyItemRangeChanged(i + 1, group.children.size());
                     group.isZhankai = false;
                 }
@@ -208,7 +209,7 @@ public class MyAdapter extends RecyclerView.Adapter {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mData.removeAll(bean.children);
-                MyAdapter.this.notifyItemRangeRemoved(position+1,bean.children.size());
+                MyAdapter.this.notifyItemRangeRemoved(position + 1, bean.children.size());
                 MyAdapter.this.notifyItemRangeChanged(position + 1, bean.children.size());
             }
 
@@ -237,7 +238,7 @@ public class MyAdapter extends RecyclerView.Adapter {
     }
 
     private void bindChildItem(ChildViewHolder viewHolder, final Child bean, int position) {
-        L.i("viewWidth:"+viewHolder.itemView.getMeasuredWidth());
+        L.i("viewWidth:" + viewHolder.itemView.getMeasuredWidth());
         if (bean.isFirstBind) {
             RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) viewHolder.itemView.getLayoutParams();
             lp.width = 0;
